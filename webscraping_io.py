@@ -17,21 +17,13 @@ import numpy as mp
 import requests
 import xlsxwriter
 from sre_constants import JUMP
+from pickle import HIGHEST_PROTOCOL
 
-# Forming Dataframe to store and represent Data
+    # Forming Dataframe to store and represent Data
 my_columns = [ 'Batch' , 'Heading' , 'Location' , 'Date' , 'Link' ]
 final_dataframe1 = pd.DataFrame(columns = my_columns)
-# final_dataframe1
 
-# To reset the data in dataframe, sometimes python do not add change to the table
-# final_dataframe1.drop(final_dataframe1.index , inplace=True)
-
-final_dataframe1
-
-final_dataframe1
-
-from pickle import HIGHEST_PROTOCOL
-# Day loop
+    # Day loop
 x = 44197
 index = 0
 Batch = 0
@@ -39,9 +31,9 @@ Batch = 0
 while x <= 45291:
   daily_url = f'https://timesofindia.indiatimes.com/2021/1/1/archivelist/year-2021,month-1,starttime-{x}.cms'
   Batch += 1
-  x = x + 1
+  x += 1
 
-   # Retrieving links from the daily_url
+    # Retrieving links from the daily_url
   response = requests.get(daily_url)
   html_content = response.text
   soup = BeautifulSoup(html_content, 'html.parser')
@@ -49,18 +41,17 @@ while x <= 45291:
   link = soup.find('tr' , class_ = "rightColWrap")
   links = link.find_all('a')
 
-  #  Retrieving data from links
+      #  Retrieving data from links
   local_url = ""
   for link in links:
       index += 1
       local_url = link.get('href')
-
-      # Extracting H1
       response_link = requests.get(local_url)
       html_content = response_link.text
       soup_link = BeautifulSoup(html_content, 'html.parser')
 
       try:
+          # Extracting Heading
         headings = []
         for tag in soup_link.find_all(['h1']):
             headings.append(tag.text.strip())
@@ -69,7 +60,7 @@ while x <= 45291:
         for h1 in sorted_headings:
             Heading = h1
 
-            # Extracting date
+            # Extracting Date
         datex = soup_link.find('div' , class_ = 'xf8Pm byline')
         date_time = datex.find("span").text
 
@@ -79,25 +70,26 @@ while x <= 45291:
           Date = Date + date_time[i]
           i += 1
 
-        # Extraction of Location
+            # Extraction of Location
         Location_txt = soup_link.find('div' , class_ = '_s30J clearfix')
         child_txt = Location_txt.contents
         Location = ""
         i = 0
-
         if ":" in child_txt[0]:
           while( child_txt[0][i] != ':' ):
               Location = Location + child_txt[0][i]
               i += 1
         else:
           Location = "General"
-
+            
+        # Some Broken URLs
       except:
           Heading = " "
           Location = " "
           date = " "
       Link = local_url
 
+      # Adding all scraped data in a dataframe 
       final_dataframe1.loc[index] = [
       Batch,
       Heading,
@@ -105,119 +97,13 @@ while x <= 45291:
       Date,
       Link
       ]
+
+      # To check the continuous running of code.
+      # It also saves us from unwanted runtime error, we can jumpm to that Batch(day)
       print(str(Batch) + "," + str(index))
-
-
-print("hello")
-print(final_dataframe1)
-
+      
+# Creating an excel file to store the dataframe
 datatoexcel = pd.ExcelWriter('TOI_2021-23.xlsx')
-
-# write DataFrame to excel
 final_dataframe1.to_excel(datatoexcel)
-
-# save the excel
 datatoexcel.close()
 print('DataFrame is written to Excel File successfully.')
-
-df = pd.read_excel('TOI_2021-23.xlsx')
-
-print(df)
-
-# ... (existing code)
-
-final_dataframe = pd.concat([final_dataframe1, {
-    'Heading': Heading,
-    'Location': Location,
-    'Date': Date,
-    'Link': local_url
-}], ignore_index=True)
-
-final_dataframe1 = final_dataframe
-
-# file1 = open('myfile.html', 'w')
-# # Writing a string to file
-# file1.write(str(soup))
-
-# # # Writing multiple strings
-# # # at a time
-# # file1.writelines(L)
-
-# # Closing file
-# file1.close()
-
-x = " "
-
-print(x)
-
-# Extracting H1
-url = 'https://timesofindia.indiatimes.com//entertainment/hindi/bollywood/news/ranbir-kapoors-sister-riddhima-kapoor-sahni-shares-an-epic-selfie-with-ranveer-singh-from-ranthambore/articleshow/80053572.cms'
-response = requests.get(url)
-html_content = response.text
-
-soup = BeautifulSoup(html_content, 'html.parser')
-
-# if 'xf8Pm byline' not in soup_link.find_all('div'):
-  # print("true")
-
-headings = []
-for tag in soup.find_all(['h1']):
-    headings.append(tag.text.strip())
-    print("1")
-
-sorted_headings = sorted(headings)
-
-for h1 in sorted_headings:
-    print("h1 - " +  h1)
-
-print("hello")
-
-# Extracting date
-try :
-  datex = soup.find('div' , class_ = 'xf8Pm byline')
-  date_time = datex.find("span").text
-
-  date = ""
-
-  i = 0
-  while ( date_time[i] != 'I' ):
-    date = date + date_time[i]
-    print(date_time[i] , end = '')
-    i += 1
-except :
-  print("Invalid Link")
-
-# Extracting location from the paragraph's div
-txt = soup.find('div' , class_ = '_s30J clearfix')
-
-# print(txt)
-
-child_txt = txt.contents
-print(child_txt[0])
-
-st = "LOL"
-
-# i = 0
-# while ( child_txt[0][i] != ':' ):
-#   st = st + child_txt[0][i]
-#   # print(child_txt[0][i] , end = '')
-#   i += 1
-
-print(st)
-
-# To reset the data in dataframe, sometimes python do not add change to the table
-final_dataframe1.drop(final_dataframe1.index , inplace=True)
-
-# Adding our extracted data to the dataframe
-i = 0
-while (i < 10):
-  final_dataframe1.loc[i] = [
-           h1,
-          date,
-          st,
-          url
-       ]
-  i += 1
-
-print("Hello")
-final_dataframe1
