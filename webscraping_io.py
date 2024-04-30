@@ -63,10 +63,11 @@ while x <= 45291:
             # Extracting Date
         datex = soup_link.find('div' , class_ = 'xf8Pm byline')
         date_time = datex.find("span").text
+        len_date = len(date_time)
 
         Date = ""
         i = 0
-        while ( date_time[i] != 'I' ):
+        while (i < len_date):
           Date = Date + date_time[i]
           i += 1
 
