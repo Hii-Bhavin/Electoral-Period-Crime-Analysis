@@ -43,9 +43,9 @@ while x <= 45291:
 
       #  Retrieving data from links
   local_url = ""
-  for link in links:
+  for url in links:
       index += 1
-      local_url = link.get('href')
+      local_url = url.get('href')
       response_link = requests.get(local_url)
       html_content = response_link.text
       soup_link = BeautifulSoup(html_content, 'html.parser')
@@ -84,9 +84,9 @@ while x <= 45291:
             
         # Some Broken URLs
       except:
-          Heading = " "
-          Location = " "
-          date = " "
+          Heading = "Broken Link"
+          Location = "Broken Link"
+          date = "Broken Link"
       Link = local_url
 
       # Adding all scraped data in a dataframe 
